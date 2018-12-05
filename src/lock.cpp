@@ -5,13 +5,13 @@ using namespace bank;
 namespace lock
 {
   //add freelock entry
-  void add_freelock(account_name beneficiary)
+  void add_freelock(name beneficiary)
   {
     freelock_table f(code_account, SCOPE_FREELOCK>>1);
     f.emplace(ram_payer, [&](auto &i) {
-      i.beneficiary = beneficiary;
-      i.created_at = now();
-      i.expire_at = i.created_at + SECONDS_PER_DAY;
+      i.beneficiary = beneficiary.value;
+      i.createdat = now();
+      i.expireat = i.createdat + SECONDS_PER_DAY;
     });
   }
 
@@ -21,7 +21,7 @@ namespace lock
     uint64_t depth = 0;
     uint64_t n = now();
     freelock_table f(code_account, SCOPE_FREELOCK>>1);
-    auto idx = f.get_index<N(expire_at)>();
+    auto idx = f.get_index<"expireat"_n>();
     auto last = idx.upper_bound(n);
     auto itr = idx.lower_bound(0);
     while(itr!=last && depth < CHECK_MAX_DEPTH)
