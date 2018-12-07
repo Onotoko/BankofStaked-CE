@@ -21,12 +21,12 @@ namespace utils
   {
     uint64_t active = TRUE;
     creditor_table c(code_account, SCOPE_CREDITOR>>1);
-    auto idx = c.get_index<"isactive"_n>();
+    auto idx = c.get_index<"is.active"_n>();
     auto itr = idx.begin();
     name creditor;
     while (itr != idx.end())
     {
-      if(itr->isactive != TRUE)
+      if(itr->is_active != TRUE)
       {
          itr++;
          continue;
@@ -63,7 +63,7 @@ namespace utils
   {
     uint64_t active = TRUE;
     creditor_table c(code_account, SCOPE_CREDITOR>>1);
-    auto idx = c.get_index<"isactive"_n>();
+    auto idx = c.get_index<"is.active"_n>();
     auto itr = idx.begin();
     name creditor;
     while (itr != idx.end())
@@ -112,19 +112,19 @@ namespace utils
 
       if(itr->account==creditor->account) {
         c.modify(itr, ram_payer, [&](auto &i) {
-          i.isactive = TRUE;
+          i.is_active = TRUE;
           i.balance = get_balance(name(itr->account));
           i.updated_at = now();
         });
       }
       else
       {
-        if(itr->isactive == FALSE)
+        if(itr->is_active == FALSE)
         {
            continue;
         }
         c.modify(itr, ram_payer, [&](auto &i) {
-          i.isactive = FALSE;
+          i.is_active = FALSE;
           i.balance = get_balance(name(itr->account));
           i.updated_at = now();
         });
@@ -143,7 +143,7 @@ namespace utils
     while (itr != p.end())
     {
       auto required = itr->cpu.amount + itr->net.amount;
-      if (itr->is_free == false && itr->isactive && required < balance) {
+      if (itr->is_free == false && itr->is_active && required < balance) {
         balance = required;
       }
       itr++;
@@ -175,7 +175,7 @@ namespace utils
     uint64_t min_paid_creditor_balance = get_min_paid_creditor_balance();
     auto free_rotated = free_balance.amount > MIN_FREE_CREDITOR_BALANCE ?TRUE:FALSE;
     auto paid_rotated = paid_balance.amount > min_paid_creditor_balance ?TRUE:FALSE;
-    auto idx = c.get_index<"updatedat"_n>();
+    auto idx = c.get_index<"updated.at"_n>();
     auto itr = idx.begin();
     while (itr != idx.end())
     {

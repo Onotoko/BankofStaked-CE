@@ -10,7 +10,7 @@ if [ $? -ne 0 ]; then
 fi
 
 
-docker exec $NAME-eos-dev eosio-cpp -abigen /$NAME/src/$NAME.cpp -o $NAME.wasm -I /contracts/eosio.token/include -I/contracts/eosio.system/include
+docker exec $NAME-eos-dev eosio-cpp --contract bankofstaked -abigen /$NAME/src/$NAME.cpp -o $NAME.wasm -I /contracts/eosio.token/include -I/contracts/eosio.system/include
 docker exec $NAME-eos-dev cp /$NAME.abi /$NAME.wasm /$NAME/
 
 if [ ! -d build ]; then

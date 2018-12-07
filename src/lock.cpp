@@ -21,7 +21,7 @@ namespace lock
     uint64_t depth = 0;
     uint64_t n = now();
     freelock_table f(code_account, SCOPE_FREELOCK>>1);
-    auto idx = f.get_index<"expireat"_n>();
+    auto idx = f.get_index<"expire.at"_n>();
     auto last = idx.upper_bound(n);
     auto itr = idx.lower_bound(0);
     while(itr!=last && depth < CHECK_MAX_DEPTH)

@@ -103,7 +103,7 @@ public:
     std::vector<uint64_t> order_ids;
 
     // order ordered by expire_at
-    auto idx = o.get_index<"expireat"_n>();
+    auto idx = o.get_index<"expire.at"_n>();
     auto itr = idx.begin();
     //force expire at most CHECK_MAX_DEPTH orders
     while (itr != idx.end() && depth < CHECK_MAX_DEPTH)
@@ -221,7 +221,7 @@ public:
 
     asset balance = get_balance(account);
     c.emplace(ram_payer, [&](auto &i) {
-      i.isactive = FALSE;
+      i.is_active = FALSE;
       i.for_free = for_free?TRUE:FALSE;
       i.free_memo = for_free?free_memo:"";
       i.account = account.value;
@@ -264,7 +264,7 @@ public:
     creditor_table c(code_account, SCOPE_CREDITOR>>1);
     auto itr = c.find(account.value);
     eosio_assert(itr!= c.end(), "account not found in creditor table");
-    eosio_assert(itr->isactive == FALSE, "cannot delete active creditor");
+    eosio_assert(itr->is_active == FALSE, "cannot delete active creditor");
     //delelete creditor entry
     c.erase(itr);
   }
@@ -328,7 +328,7 @@ public:
         i.cpu = cpu;
         i.net = net;
         i.duration = duration;
-        i.isactive = FALSE;
+        i.is_active = FALSE;
         i.is_free = is_free?TRUE:FALSE;
         i.created_at = now();
         i.updated_at = now();
@@ -347,7 +347,7 @@ public:
   }
   
   [[eosio::action]]
-  void activateplan(asset price, bool isactive)
+  void activateplan(asset price, bool is_active)
   {
     require_auth(code_account);
     eosio_assert(price.is_valid(), "invalid price");
@@ -357,7 +357,7 @@ public:
     eosio_assert(itr != idx.end(), "price not found");
 
     idx.modify(itr, ram_payer, [&](auto &i) {
-     i.isactive = isactive?TRUE:FALSE;
+     i.is_active = is_active?TRUE:FALSE;
      i.updated_at = now();
     });
   }
@@ -377,11 +377,11 @@ public:
       {
         return;
       }
-      //validate plan, isactive should be TRUE
+      //validate plan, is_active should be TRUE
       plan_table p(code_account, code_account.value);
       auto idx = p.get_index<"price"_n>();
       auto plan = idx.find(quantity.amount);
-      eosio_assert(plan->isactive == TRUE, "plan is in-active");
+      eosio_assert(plan->is_active == TRUE, "plan is in-active");
       eosio_assert(plan != idx.end(), "invalid price");
 
       name beneficiary = get_beneficiary(memo, buyer);
