@@ -25,9 +25,9 @@ echo "Build SUCCESS!!!"
 
 # For test and debug
 docker exec nodeosd mkdir /$NAME
-docker cp ../$FOLDER/$NAME.abi nodeosd:/$NAME/
-docker cp ../$FOLDER/$NAME.wasm nodeosd:/$NAME/
-docker cp ../$FOLDER/$NAME.wast nodeosd:/$NAME/
+docker cp ./build/$NAME.abi nodeosd:/$NAME/
+docker cp ./build/$NAME.wasm nodeosd:/$NAME/
+docker cp ./build/$NAME.wast nodeosd:/$NAME/
 docker cp scripts nodeosd:/
 
 
