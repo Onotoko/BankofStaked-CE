@@ -102,13 +102,13 @@ public:
     uint64_t depth = 0;
     std::vector<uint64_t> order_ids;
 
-    // order ordered by expireat
+    // order ordered by expire_at
     auto idx = o.get_index<"expireat"_n>();
     auto itr = idx.begin();
     //force expire at most CHECK_MAX_DEPTH orders
     while (itr != idx.end() && depth < CHECK_MAX_DEPTH)
     {
-      if(now() >= itr->expireat) {
+      if(now() >= itr->expire_at) {
         order_ids.emplace_back(itr->id);
       }
       depth++;
@@ -142,7 +142,7 @@ public:
     eosio_assert(order != o.end(), "order entry not found!!!");
 
     //save order meta to history
-    //buyer|creditor|beneficiary|plan_id|price|cpu|net|createdat|expireat
+    //buyer|creditor|beneficiary|plan_id|price|cpu|net|created_at|expire_at
     content += (name{order->buyer}).to_string();
     content += "|" + (name{order->creditor}).to_string();
     content += "|" + (name{order->beneficiary}).to_string();
@@ -151,8 +151,8 @@ public:
     content += order->is_free==TRUE?"|free":"|paid";
     content += "|" + std::to_string(order->cpu_staked.amount);
     content += "|" + std::to_string(order->net_staked.amount);
-    content += "|" + std::to_string(order->createdat);
-    content += "|" + std::to_string(order->expireat);
+    content += "|" + std::to_string(order->created_at);
+    content += "|" + std::to_string(order->expire_at);
 
     // updated cpu_staked/net_staked/cpu_unstaked/net_unstaked of creditor entry
     creditor_table c(code_account, SCOPE_CREDITOR>>1);
@@ -164,7 +164,7 @@ public:
       i.cpu_unstaked += order->cpu_staked;
       i.net_unstaked += order->net_staked;
       i.balance = balance;
-      i.updatedat = now();
+      i.updated_at = now();
     });
 
     //delete order entry
@@ -175,7 +175,7 @@ public:
     h.emplace(ram_payer, [&](auto &i) {
       i.id = h.available_primary_key();
       i.content = content;
-      i.createdat = now();
+      i.created_at = now();
     });
   }
 
@@ -189,13 +189,13 @@ public:
       w.emplace(ram_payer, [&](auto &i) {
         i.account = account.value;
         i.capacity = capacity;
-        i.createdat = now();
-        i.updatedat = now();
+        i.created_at = now();
+        i.updated_at = now();
       });
     } else {
       w.modify(itr, ram_payer, [&](auto &i) {
         i.capacity = capacity;
-        i.updatedat = now();
+        i.updated_at = now();
       });
     }
   }
@@ -226,8 +226,8 @@ public:
       i.free_memo = for_free?free_memo:"";
       i.account = account.value;
       i.balance = balance;
-      i.createdat = now();
-      i.updatedat = 0; // set to 0 for creditor auto rotation
+      i.created_at = now();
+      i.updated_at = 0; // set to 0 for creditor auto rotation
     });
   }
 
@@ -241,8 +241,8 @@ public:
     safecreditor_table s(code_account, SCOPE_CREDITOR>>1);
     s.emplace(ram_payer, [&](auto &i) {
       i.account = account.value;
-      i.createdat = now();
-      i.updatedat = now();
+      i.created_at = now();
+      i.updated_at = now();
     });
   }
 
@@ -281,7 +281,7 @@ public:
     // add entry
     b.emplace(ram_payer, [&](auto &i) {
       i.account = account.value;
-      i.createdat = now();
+      i.created_at = now();
     });
   }
 
@@ -330,8 +330,8 @@ public:
         i.duration = duration;
         i.isactive = FALSE;
         i.is_free = is_free?TRUE:FALSE;
-        i.createdat = now();
-        i.updatedat = now();
+        i.created_at = now();
+        i.updated_at = now();
       });
     }
     else
@@ -341,7 +341,7 @@ public:
         i.net = net;
         i.duration = duration;
         i.is_free = is_free?TRUE:FALSE;
-        i.updatedat = now();
+        i.updated_at = now();
       });
     }
   }
@@ -358,7 +358,7 @@ public:
 
     idx.modify(itr, ram_payer, [&](auto &i) {
      i.isactive = isactive?TRUE:FALSE;
-     i.updatedat = now();
+     i.updated_at = now();
     });
   }
 
@@ -442,7 +442,7 @@ public:
         i.cpu_staked += plan->cpu;
         i.net_staked += plan->net;
         i.balance = balance;
-        i.updatedat = now();
+        i.updated_at = now();
       });
 
       //create Order entry
@@ -458,8 +458,8 @@ public:
         i.cpu_staked = plan->cpu;
         i.net_staked = plan->net;
         i.is_free = plan->is_free;
-        i.createdat = now();
-        i.expireat = now() + plan->duration * SECONDS_PER_MIN;
+        i.created_at = now();
+        i.expire_at = now() + plan->duration * SECONDS_PER_MIN;
 
         order_id = i.id;
       });

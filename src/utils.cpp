@@ -52,7 +52,7 @@ namespace utils
     if(creditor_itr != c.end() && creditor_itr->balance != balance) {
       c.modify(creditor_itr, ram_payer, [&](auto &i) {
         i.balance = balance;
-        i.updatedat = now();
+        i.updated_at = now();
       });
     }
     return balance;
@@ -114,7 +114,7 @@ namespace utils
         c.modify(itr, ram_payer, [&](auto &i) {
           i.isactive = TRUE;
           i.balance = get_balance(name(itr->account));
-          i.updatedat = now();
+          i.updated_at = now();
         });
       }
       else
@@ -126,7 +126,7 @@ namespace utils
         c.modify(itr, ram_payer, [&](auto &i) {
           i.isactive = FALSE;
           i.balance = get_balance(name(itr->account));
-          i.updatedat = now();
+          i.updated_at = now();
         });
       }
     }

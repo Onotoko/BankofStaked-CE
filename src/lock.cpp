@@ -10,8 +10,8 @@ namespace lock
     freelock_table f(code_account, SCOPE_FREELOCK>>1);
     f.emplace(ram_payer, [&](auto &i) {
       i.beneficiary = beneficiary.value;
-      i.createdat = now();
-      i.expireat = i.createdat + SECONDS_PER_DAY;
+      i.created_at = now();
+      i.expire_at = i.created_at + SECONDS_PER_DAY;
     });
   }
 
