@@ -36,11 +36,11 @@ static const uint64_t SCOPE_WHITELIST = 1842919517374;
 
 struct [[eosio::table, eosio::contract("bankofstaked")]] freelock
 {
-  uint64_t beneficiary; // account who received CPU&NET
+  name beneficiary; // account who received CPU&NET
   uint64_t created_at;      // unix time, in seconds
   uint64_t expire_at;       // unix time, in seconds
 
-  uint64_t primary_key() const { return beneficiary; }
+  uint64_t primary_key() const { return beneficiary.value; }
   uint64_t get_expire_at() const { return expire_at; }
 
   EOSLIB_SERIALIZE(freelock, (beneficiary)(created_at)(expire_at));
@@ -53,11 +53,11 @@ typedef multi_index<"freelock"_n, freelock,
 struct [[eosio::table, eosio::contract("bankofstaked")]] order
 {
   uint64_t id;
-  uint64_t buyer;
+  name buyer;
   asset price;              // amount of EOS paied
   uint64_t is_free;         // default is FALSE, for free plan, when service expired, it will do a auto refund
-  uint64_t creditor;    // account who delegated CPU&NET
-  uint64_t beneficiary; // account who received CPU&NET
+  name creditor;    // account who delegated CPU&NET
+  name beneficiary; // account who received CPU&NET
   uint64_t plan_id;         // foreignkey of table plan
   asset cpu_staked;         // amount of EOS staked for cpu
   asset net_staked;         // amount of EOS staked for net
@@ -65,8 +65,8 @@ struct [[eosio::table, eosio::contract("bankofstaked")]] order
   uint64_t expire_at;       // unix time, in seconds
 
   auto primary_key() const { return id; }
-  uint64_t get_buyer() const { return buyer; }
-  uint64_t get_beneficiary() const { return beneficiary; }
+  uint64_t get_buyer() const { return buyer.value; }
+  uint64_t get_beneficiary() const { return beneficiary.value; }
   uint64_t get_expire_at() const { return expire_at; }
 
   EOSLIB_SERIALIZE(order, (id)(buyer)(price)(is_free)(creditor)(beneficiary)(plan_id)(cpu_staked)(net_staked)(created_at)(expire_at));
@@ -111,11 +111,11 @@ typedef multi_index<"plan"_n, plan,
 
 struct [[eosio::table, eosio::contract("bankofstaked")]] safecreditor
 {
-  uint64_t account;
+  name account;
   uint64_t created_at; // unix time, in seconds
   uint64_t updated_at; // unix time, in seconds
 
-  uint64_t primary_key() const { return account; }
+  uint64_t primary_key() const { return account.value; }
 
   EOSLIB_SERIALIZE(safecreditor, (account)(created_at)(updated_at));
 };
@@ -123,10 +123,10 @@ typedef multi_index<"safecreditor"_n, safecreditor> safecreditor_table;
 
 struct [[eosio::table, eosio::contract("bankofstaked")]] dividend
 {
-  uint64_t account;
+  name account;
   uint64_t percentage; // percentage of income allocating to creditor
 
-  uint64_t primary_key() const { return account; }
+  uint64_t primary_key() const { return account.value; }
 
   EOSLIB_SERIALIZE(dividend, (account)(percentage));
 };
@@ -134,7 +134,7 @@ typedef multi_index<"dividend"_n, dividend> dividend_table;
 
 struct [[eosio::table, eosio::contract("bankofstaked")]] creditor
 {
-  uint64_t account;
+  name account;
   uint64_t is_active;
   uint64_t for_free;         // default is FALSE, for_free means if this creditor provide free staking or not
   string free_memo;    // memo for refund transaction
@@ -146,7 +146,7 @@ struct [[eosio::table, eosio::contract("bankofstaked")]] creditor
   uint64_t created_at; // unix time, in seconds
   uint64_t updated_at; // unix time, in seconds
 
-  uint64_t primary_key() const { return account; }
+  uint64_t primary_key() const { return account.value; }
   uint64_t get_is_active() const { return is_active; }
   uint64_t get_updated_at() const { return updated_at; }
 
@@ -160,22 +160,22 @@ typedef multi_index<"creditor"_n, creditor,
 
 struct [[eosio::table, eosio::contract("bankofstaked")]] blacklist
 {
-  uint64_t account;
+  name account;
   uint64_t created_at; // unix time, in seconds
 
-  uint64_t primary_key() const { return account; }
+  uint64_t primary_key() const { return account.value; }
   EOSLIB_SERIALIZE(blacklist, (account)(created_at));
 };
 typedef multi_index<"blacklist"_n, blacklist> blacklist_table;
 
 struct [[eosio::table, eosio::contract("bankofstaked")]] whitelist
 {
-  uint64_t account;
+  name account;
   uint64_t capacity; // max in-use free orders
   uint64_t updated_at; // unix time, in seconds
   uint64_t created_at; // unix time, in seconds
 
-  uint64_t primary_key() const { return account; }
+  uint64_t primary_key() const { return account.value; }
   EOSLIB_SERIALIZE(whitelist, (account)(capacity)(updated_at)(created_at));
 };
 typedef multi_index<"whitelist"_n, whitelist> whitelist_table;

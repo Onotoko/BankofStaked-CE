@@ -143,9 +143,9 @@ public:
 
     //save order meta to history
     //buyer|creditor|beneficiary|plan_id|price|cpu|net|created_at|expire_at
-    content += (name{order->buyer}).to_string();
-    content += "|" + (name{order->creditor}).to_string();
-    content += "|" + (name{order->beneficiary}).to_string();
+    content += order->buyer.to_string();
+    content += "|" + order->creditor.to_string();
+    content += "|" + order->beneficiary.to_string();
     content += "|" + std::to_string(order->plan_id);
     content += "|" + std::to_string(order->price.amount);
     content += order->is_free==TRUE?"|free":"|paid";
@@ -156,8 +156,8 @@ public:
 
     // updated cpu_staked/net_staked/cpu_unstaked/net_unstaked of creditor entry
     creditor_table c(code_account, SCOPE_CREDITOR>>1);
-    auto creditor_itr = c.find(order->creditor);
-    asset balance = get_balance(name(order->creditor));
+    auto creditor_itr = c.find(order->creditor.value);
+    asset balance = get_balance(order->creditor);
     c.modify(creditor_itr, ram_payer, [&](auto &i) {
       i.cpu_staked -= order->cpu_staked;
       i.net_staked -= order->net_staked;
@@ -187,7 +187,7 @@ public:
     auto itr = w.find(account.value);
     if(itr == w.end()) {
       w.emplace(ram_payer, [&](auto &i) {
-        i.account = account.value;
+        i.account = account;
         i.capacity = capacity;
         i.created_at = now();
         i.updated_at = now();
@@ -224,7 +224,7 @@ public:
       i.is_active = FALSE;
       i.for_free = for_free?TRUE:FALSE;
       i.free_memo = for_free?free_memo:"";
-      i.account = account.value;
+      i.account = account;
       i.balance = balance;
       i.created_at = now();
       i.updated_at = 0; // set to 0 for creditor auto rotation
@@ -240,7 +240,7 @@ public:
 
     safecreditor_table s(code_account, SCOPE_CREDITOR>>1);
     s.emplace(ram_payer, [&](auto &i) {
-      i.account = account.value;
+      i.account = account;
       i.created_at = now();
       i.updated_at = now();
     });
@@ -280,7 +280,7 @@ public:
 
     // add entry
     b.emplace(ram_payer, [&](auto &i) {
-      i.account = account.value;
+      i.account = account;
       i.created_at = now();
     });
   }
@@ -450,10 +450,10 @@ public:
       order_table o(code_account, SCOPE_ORDER>>1);
       o.emplace(ram_payer, [&](auto &i) {
         i.id = o.available_primary_key();
-        i.buyer = buyer.value;
+        i.buyer = buyer;
         i.price = plan->price;
-        i.creditor = creditor.value;
-        i.beneficiary = beneficiary.value;
+        i.creditor = creditor;
+        i.beneficiary = beneficiary;
         i.plan_id = plan->id;
         i.cpu_staked = plan->cpu;
         i.net_staked = plan->net;
@@ -472,8 +472,7 @@ public:
         //INLINE ACTION to auto refund
         creditor_table c(code_account, SCOPE_CREDITOR>>1);
         std::string free_memo = c.get(creditor.value).free_memo;
-        auto username = name{buyer};
-        std::string buyer_name = username.to_string();
+        std::string buyer_name = buyer.to_string();
         std::string memo = buyer_name + " " + free_memo;
         INLINE_ACTION_SENDER(eosio::token, transfer)
         ("eosio.token"_n, {{code_account, "bankperm"_n}}, {code_account, safe_transfer_account, plan->price, memo});
@@ -512,7 +511,7 @@ private:
 
       // undelegatebw action
       action act1 = action(
-        permission_level{ name(order.creditor), "creditorperm"_n },
+        permission_level{ order.creditor, "creditorperm"_n },
         "eosio"_n, "undelegatebw"_n,
         std::make_tuple(order.creditor, order.beneficiary, order.net_staked, order.cpu_staked)
       );
@@ -535,7 +534,7 @@ private:
         std::string memo = recipient_name + " bankofstaked income";
 
         // transfer income to creditor
-        asset income = get_income(name(order.creditor), order.price);
+        asset income = get_income(order.creditor, order.price);
         eosio_assert(income <= order.price, "income should not be greater than price");
         action act3 = action(
           permission_level{ code_account, "bankperm"_n },

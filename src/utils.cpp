@@ -33,7 +33,7 @@ namespace utils
       }
 
       if(itr->for_free == for_free) {
-        creditor = name(itr->account);
+        creditor = itr->account;
         break;
       }
       itr++;
@@ -68,9 +68,9 @@ namespace utils
     name creditor;
     while (itr != idx.end())
     {
-      asset balance = get_balance(name(itr->account));
+      asset balance = get_balance(itr->account);
       if(itr->for_free == FALSE && balance >= to_delegate) {
-        creditor = name(itr->account);
+        creditor = itr->account;
         break;
       }
       itr++;
@@ -113,7 +113,7 @@ namespace utils
       if(itr->account==creditor->account) {
         c.modify(itr, ram_payer, [&](auto &i) {
           i.is_active = TRUE;
-          i.balance = get_balance(name(itr->account));
+          i.balance = get_balance(itr->account);
           i.updated_at = now();
         });
       }
@@ -125,7 +125,7 @@ namespace utils
         }
         c.modify(itr, ram_payer, [&](auto &i) {
           i.is_active = FALSE;
-          i.balance = get_balance(name(itr->account));
+          i.balance = get_balance(itr->account);
           i.updated_at = now();
         });
       }
@@ -182,10 +182,10 @@ namespace utils
       if(itr->for_free == TRUE)
       {
         if(free_rotated == TRUE){itr++;continue;}
-        auto balance = get_balance(name(itr->account));
-        if (name(itr->account) != free_creditor && balance.amount > MIN_FREE_CREDITOR_BALANCE)
+        auto balance = get_balance(itr->account);
+        if (itr->account != free_creditor && balance.amount > MIN_FREE_CREDITOR_BALANCE)
         {
-          activate_creditor(name(itr->account));
+          activate_creditor(itr->account);
           free_rotated = TRUE;
         }
         itr++;
@@ -193,10 +193,10 @@ namespace utils
       else
       {
         if(paid_rotated == TRUE){itr++;continue;}
-        auto balance = get_balance(name(itr->account));
-        if (name(itr->account) != paid_creditor && balance.amount > min_paid_creditor_balance)
+        auto balance = get_balance(itr->account);
+        if (itr->account != paid_creditor && balance.amount > min_paid_creditor_balance)
         {
-          activate_creditor(name(itr->account));
+          activate_creditor(itr->account);
           paid_rotated = TRUE;
         }
         itr++;
