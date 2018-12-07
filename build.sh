@@ -1,5 +1,5 @@
 #!/bin/bash
-IMAGE=eoslaoamoa/eos-dev:1.4.0
+IMAGE=eoslaomao/eos-dev:1.4.0
 NAME=bankofstaked
 FOLDER=bankofstaked
 
