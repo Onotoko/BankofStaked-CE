@@ -90,7 +90,7 @@ public:
     */
   }
 
-  // @abi action test
+  [[eosio::action]]
   void test(name creditor)
   {
     require_auth(CODE_ACCOUNT);
@@ -115,7 +115,7 @@ public:
 
   }
 
-  // @abi action rotate
+  [[eosio::action]]
   void rotate(name creditor, uint64_t for_free)
   {
     require_auth(CODE_ACCOUNT);
@@ -621,6 +621,8 @@ extern "C" {
           (delblacklist)
           (activate)
           (check)
+          (test)
+          (rotate)
           (clearhistory)
           (forcexpire))
       }
