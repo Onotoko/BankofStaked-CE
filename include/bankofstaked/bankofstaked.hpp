@@ -178,5 +178,3 @@ struct [[eosio::table, eosio::contract("bankofstaked")]] whitelist
 typedef multi_index<"whitelist"_n, whitelist> whitelist_table;
 
 }// namespace bank
-
-

@@ -21,7 +21,7 @@ class bankofstaked_tester : public tester
   public:
     bankofstaked_tester()
     {
-       produce_blocks(2);
+        produce_blocks(2);
 
         create_accounts({N(alice), N(bob), N(carol), N(eosio.token), N(bankofstaked)});
         produce_blocks(2);
